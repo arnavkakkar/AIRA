@@ -5,14 +5,15 @@
 const API_BASE = "http://localhost:5001";
 
 let state = {
-  profile:        "normal",
-  exposureHours:  3,
-  pollutants:     {},
-  currentAqi:     0,
-  city:           "Delhi",
+  profile: "normal",
+  age: 21,
+  exposureHours: 3,
+  pollutants: {},
+  currentAqi: 0,
+  city: "Delhi",
   pollutantChart: null,
-  forecastChart:  null,
-  riskChart:      null,
+  forecastChart: null,
+  riskChart: null,
 };
 
 // ─── AQI metadata ────────────────────────────────────────────────────────────
@@ -246,26 +247,35 @@ async function runForecast() {
   btn.innerHTML = '<i class="ti ti-loader" aria-hidden="true"></i> Forecasting…';
 
   try {
-    const payload = {
-    pm25:           state.pollutants["PM2.5"] || 0,
-    pm10:           state.pollutants["PM10"]  || 0,
-    no2:            state.pollutants["NO2"]   || 0,
-    co:             state.pollutants["CO"]    || 0,
-    so2:            state.pollutants["SO2"]   || 0,
-    o3:             state.pollutants["O3"]    || 0,
-    current_aqi:    state.currentAqi,
-    exposure_hours: state.exposureHours,
-    profile:        state.profile,
-    city:           state.city || "Delhi",
-  };
 
-    const res  = await fetch(`${API_BASE}/api/forecast`, {
+    // Read age from input
+    state.age = parseInt(document.getElementById("ageInput").value) || 21;
+
+    const payload = {
+      pm25:           state.pollutants["PM2.5"] || 0,
+      pm10:           state.pollutants["PM10"]  || 0,
+      no2:            state.pollutants["NO2"]   || 0,
+      co:             state.pollutants["CO"]    || 0,
+      so2:            state.pollutants["SO2"]   || 0,
+      o3:             state.pollutants["O3"]    || 0,
+      current_aqi:    state.currentAqi,
+      exposure_hours: state.exposureHours,
+      profile:        state.profile,
+      age:            state.age,
+      city:           state.city || "Delhi"
+    };
+
+    const res = await fetch(`${API_BASE}/api/forecast`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+
     const data = await res.json();
-    if (data.error) throw new Error(data.error);
+
+    if (data.error) {
+      throw new Error(data.error);
+    }
 
     renderForecast(data);
 
@@ -274,7 +284,8 @@ async function runForecast() {
   }
 
   btn.disabled = false;
-  btn.innerHTML = '<i class="ti ti-brain" aria-hidden="true"></i> Generate 24h Forecast';
+  btn.innerHTML =
+    '<i class="ti ti-brain" aria-hidden="true"></i> Generate 24h Forecast';
 }
 
 function renderForecast(data) {
@@ -337,7 +348,16 @@ function renderForecast(data) {
 
   // ── Risk timeline bar chart ───────────────────────────────────────────────
   renderRiskTimelineChart(risk_timeline);
+  // ── User summary card ────────────────────────────────────────────────────
+  document.getElementById("profileInfo").textContent =
+    state.profile.charAt(0).toUpperCase() + state.profile.slice(1);
+  
+  document.getElementById("ageInfo").textContent =
+    state.age;
 
+  document.getElementById("exposureInfo").textContent =
+    `${state.exposureHours} hrs/day`;
+  
   // ── Recommendations ───────────────────────────────────────────────────────
   const recoList = document.getElementById("recoList");
   recoList.innerHTML = "";

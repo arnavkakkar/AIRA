@@ -107,9 +107,28 @@ def get_aqi_meta(aqi: float) -> dict:
     return {"category": "Severe", "color": "#8020a0"}
 
 
-def calculate_risk_score(aqi: float, hours: float, profile: str) -> float:
-    mult = PROFILE_MULTIPLIERS.get(profile, 1.0)
-    return round((aqi * hours * mult) / 100, 2)
+def calculate_risk_score(
+    aqi: float,
+    hours: float,
+    profile: str,
+    age: int
+) -> float:
+
+    profile_mult = PROFILE_MULTIPLIERS.get(profile, 1.0)
+
+    # Age sensitivity multiplier
+    if age <= 12:
+        age_mult = 1.4
+    elif age >= 60:
+        age_mult = 1.5
+    elif age >= 45:
+        age_mult = 1.2
+    else:
+        age_mult = 1.0
+
+    risk = (aqi * hours * profile_mult * age_mult) / 100
+
+    return round(risk, 2)
 
 
 def get_risk_level(score: float) -> str:
@@ -305,13 +324,40 @@ def fetch_aqi():
         data = resp["data"]
         iaqi = data.get("iaqi", {})
 
-        pm25 = float(iaqi.get("pm25", {}).get("v", 0))
-        pm10 = float(iaqi.get("pm10", {}).get("v", 0))
-        no2  = float(iaqi.get("no2",  {}).get("v", 0))
-        co   = float(iaqi.get("co",   {}).get("v", 0))
-        so2  = float(iaqi.get("so2",  {}).get("v", 0))
-        o3   = float(iaqi.get("o3",   {}).get("v", 0))
-        aqi  = float(data.get("aqi", 0))
+        aqi = float(data.get("aqi", 0))
+
+        print("\n=== IAQI DATA ===")
+        print(json.dumps(iaqi, indent=2))
+
+        def safe_pollutant(value, max_val):
+            try:
+                value = float(value)
+                return max(0, min(value, max_val))
+            except:
+                return 0
+
+        pm25 = safe_pollutant(iaqi.get("pm25", {}).get("v", 0), 500)
+        pm10 = safe_pollutant(iaqi.get("pm10", {}).get("v", 0), 600)
+        no2  = safe_pollutant(iaqi.get("no2",  {}).get("v", 0), 400)
+        co   = safe_pollutant(iaqi.get("co",   {}).get("v", 0), 50)
+        raw_so2 = safe_pollutant(iaqi.get("so2", {}).get("v", 0), 500)
+        if raw_so2 > 200:
+            so2 = 0
+        else:
+            so2 = raw_so2
+        o3   = safe_pollutant(iaqi.get("o3",   {}).get("v", 0), 300)
+
+        pollutants = {
+            "pm25": pm25,
+            "pm10": pm10,
+            "no2": no2,
+            "co": co,
+            "so2": so2,
+            "o3": o3
+        }
+
+        print("\n=== CLEANED POLLUTANTS ===")
+        print(json.dumps(pollutants, indent=2))
 
         if aqi >= 500 and pm25 > 0:
             aqi = min(pm25 * 1.5, 300)
@@ -356,10 +402,12 @@ def predict():
         ]], columns=["PM2.5", "PM10", "NO2", "CO", "SO2", "O3",
                      "AQI_lag1", "AQI_lag2", "AQI_lag3"])
 
+        age = int(body.get("age", 21))
+
         predicted_aqi  = float(rf_model.predict(input_df)[0])
         exposure_hours = int(body["exposure_hours"])
         profile        = body["profile"]
-        risk_score     = calculate_risk_score(predicted_aqi, exposure_hours, profile)
+        risk_score     = calculate_risk_score(predicted_aqi, exposure_hours, profile, age)
         risk_level     = get_risk_level(risk_score)
         aqi_category   = get_aqi_meta(predicted_aqi)["category"]
         recommendations = build_forecast_recommendations(predicted_aqi, profile)
@@ -389,6 +437,7 @@ def forecast():
       "current_aqi": float,
       "profile": "normal"|"asthma"|"elderly"|"athlete",
       "exposure_hours": int
+      "age": int
     }
 
     Response:
@@ -420,6 +469,7 @@ def forecast():
     profile        = body.get("profile", "normal")
     exposure_hours = int(body.get("exposure_hours", 3))
     current_aqi    = float(body["current_aqi"])
+    age            = int(body.get("age", 21))
 
     # ── GRU forecast ──────────────────────────────────────────────────────────
     if gru_available:
@@ -448,7 +498,7 @@ def forecast():
     risk_timeline = []
     for i, aqi_val in enumerate(forecast_aqi, start=1):
         meta       = get_aqi_meta(aqi_val)
-        risk_score = calculate_risk_score(aqi_val, exposure_hours, profile)
+        risk_score = calculate_risk_score(aqi_val,exposure_hours,profile,age)
         risk_level = get_risk_level(risk_score)
         risk_timeline.append({
             "hour":       i,
@@ -478,6 +528,7 @@ def forecast():
         gru_metrics = hist.get("metrics", {})
 
     return jsonify({
+        "age":            age,
         "forecast_aqi":   forecast_aqi,
         "forecast_lower": fc["forecast_lower"],
         "forecast_upper": fc["forecast_upper"],

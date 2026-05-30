@@ -137,12 +137,22 @@
               <button class="profile-pill" data-profile="asthma" onclick="selectProfile(this)">
                 <i class="ti ti-lungs" aria-hidden="true"></i> Asthma
               </button>
-              <button class="profile-pill" data-profile="elderly" onclick="selectProfile(this)">
-                <i class="ti ti-heart-rate-monitor" aria-hidden="true"></i> Elderly
-              </button>
               <button class="profile-pill" data-profile="athlete" onclick="selectProfile(this)">
                 <i class="ti ti-run" aria-hidden="true"></i> Athlete
               </button>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Age</label>
+            <div class="age-input-wrapper">
+              <input
+                type="number"
+                id="ageInput"
+                min="1"
+                max="100"
+                value="21"
+                class="age-input"
+              />
             </div>
           </div>
           <div class="control-group">
@@ -235,7 +245,20 @@
           <span class="chart-sub">Risk score per hour based on profile</span>
         </div>
         <div style="position:relative;width:100%;height:220px;">
-          <canvas id="riskTimelineChart" role="img" aria-label="Respiratory risk timeline"></canvas>
+          <canvas id="riskTimelineChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="forecast-card user-summary-card">
+        <div class="fc-label">User Profile</div>
+        <div class="fc-cat">
+          Profile: <span id="profileInfo">—</span>
+        </div>
+        <div class="fc-cat">
+          Age: <span id="ageInfo">—</span>
+        </div>
+        <div class="fc-risk">
+          Exposure: <span id="exposureInfo">—</span>
         </div>
       </div>
 
@@ -272,7 +295,7 @@
         <div class="about-card">
           <div class="about-icon"><i class="ti ti-user-heart" aria-hidden="true"></i></div>
           <div class="about-title">Personalised Risk</div>
-          <div class="about-desc">Health profiles (Normal, Asthma, Elderly, Athlete) apply physiological sensitivity multipliers to generate personalised 24h risk timelines.</div>
+          <div class="about-desc">Health profiles combined with age-based sensitivity multipliers generate personalised 24-hour respiratory risk timelines.</div>
         </div>
         <div class="about-card">
           <div class="about-icon"><i class="ti ti-alert-triangle" aria-hidden="true"></i></div>
