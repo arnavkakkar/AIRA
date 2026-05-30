@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIRA — AI Respiratory Forecasting Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="static/css/style.css" />
+</head>
+<body>
+
+  <div class="grain"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="logo">
+        <span class="logo-icon"><i class="ti ti-lungs" aria-hidden="true"></i></span>
+        <span class="logo-text">AIRA</span>
+        <span class="logo-sub">Respiratory Intelligence</span>
+      </div>
+      <div class="nav-pills">
+        <span class="nav-pill active" onclick="scrollToSection('dashboard')">Dashboard</span>
+        <span class="nav-pill" onclick="scrollToSection('forecast')">24h Forecast</span>
+        <span class="nav-pill" onclick="scrollToSection('analysis')">Analysis</span>
+        <span class="nav-pill" onclick="scrollToSection('about')">About</span>
+      </div>
+      <div class="nav-status">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText" class="status-text">Awaiting location</span>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero" id="dashboard">
+      <div class="hero-bg-circle c1"></div>
+      <div class="hero-bg-circle c2"></div>
+      <div class="hero-content">
+        <div class="hero-tag"><i class="ti ti-sparkles" aria-hidden="true"></i> GRU Temporal Neural Network · Real-Time · 24h Forecast</div>
+        <h1 class="hero-title">Forecast your air.<br/><em>Protect your lungs.</em></h1>
+        <p class="hero-desc">AIRA uses a Gated Recurrent Unit (GRU) neural network to forecast AQI 24 hours ahead, calculate respiratory risk timelines, and detect pollution anomalies before they affect your health.</p>
+        <button class="btn-primary" id="locateBtn" onclick="requestLocation()">
+          <i class="ti ti-current-location" aria-hidden="true"></i>
+          Detect My Location
+        </button>
+      </div>
+      <div class="hero-visual">
+        <div class="aqi-orb" id="aqiOrb">
+          <div class="orb-ring r1"></div>
+          <div class="orb-ring r2"></div>
+          <div class="orb-ring r3"></div>
+          <div class="orb-inner">
+            <span class="orb-value" id="orbValue">—</span>
+            <span class="orb-label">AQI</span>
+          </div>
+        </div>
+        <div class="orb-caption" id="orbCaption">Live Air Quality Index</div>
+      </div>
+    </section>
+
+    <!-- LOADER -->
+    <div class="loader-bar" id="loaderBar">
+      <div class="loader-fill" id="loaderFill"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         LIVE DATA SECTION
+    ═══════════════════════════════════════════════════════════════ -->
+    <section class="data-section" id="dataSection" style="display:none">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Live Air Quality</h2>
+          <p class="section-sub" id="locationLabel">Fetching location…</p>
+        </div>
+        <div class="last-updated">
+          <i class="ti ti-clock" aria-hidden="true"></i>
+          <span id="lastUpdated">—</span>
+        </div>
+      </div>
+
+      <!-- AQI Banner -->
+      <div class="aqi-banner" id="aqiBanner">
+        <div class="banner-left">
+          <span class="banner-aqi" id="bannerAqi">—</span>
+          <div>
+            <div class="banner-category" id="bannerCategory">—</div>
+            <div class="banner-desc" id="bannerDesc">—</div>
+          </div>
+        </div>
+        <div class="banner-right">
+          <div class="banner-scale">
+            <div class="scale-track">
+              <div class="scale-thumb" id="scaleThumb"></div>
+            </div>
+            <div class="scale-labels">
+              <span>Good</span><span>Moderate</span><span>Severe</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pollutant Cards -->
+      <div class="pollutant-grid" id="pollutantGrid"></div>
+
+      <!-- Pollutant Bar Chart -->
+      <div class="chart-card" id="analysis">
+        <div class="chart-header">
+          <span class="chart-title">Pollutant Breakdown</span>
+          <span class="chart-sub">μg/m³ concentration</span>
+        </div>
+        <div style="position:relative;width:100%;height:260px;">
+          <canvas id="pollutantChart" role="img" aria-label="Bar chart of pollutant concentrations"></canvas>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════
+           PROFILE + FORECAST TRIGGER
+      ═══════════════════════════════════════════════════════════ -->
+      <div class="profile-card">
+        <div class="profile-header">
+          <h3 class="profile-title"><i class="ti ti-user-circle" aria-hidden="true"></i> Your Health Profile</h3>
+          <p class="profile-sub">Personalise the GRU forecast and risk timeline to your health condition and exposure time.</p>
+        </div>
+        <div class="profile-controls">
+          <div class="control-group">
+            <label class="control-label">Health Profile</label>
+            <div class="profile-pills">
+              <button class="profile-pill active" data-profile="normal" onclick="selectProfile(this)">
+                <i class="ti ti-user" aria-hidden="true"></i> Normal
+              </button>
+              <button class="profile-pill" data-profile="asthma" onclick="selectProfile(this)">
+                <i class="ti ti-lungs" aria-hidden="true"></i> Asthma
+              </button>
+              <button class="profile-pill" data-profile="elderly" onclick="selectProfile(this)">
+                <i class="ti ti-heart-rate-monitor" aria-hidden="true"></i> Elderly
+              </button>
+              <button class="profile-pill" data-profile="athlete" onclick="selectProfile(this)">
+                <i class="ti ti-run" aria-hidden="true"></i> Athlete
+              </button>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Daily Outdoor Exposure</label>
+            <div class="slider-row">
+              <input type="range" min="1" max="12" value="3" id="exposureSlider" oninput="updateSlider()" />
+              <span class="slider-value"><span id="exposureVal">3</span> hrs</span>
+            </div>
+          </div>
+          <button class="btn-analyze" id="analyzeBtn" onclick="runForecast()">
+            <i class="ti ti-brain" aria-hidden="true"></i>
+            Generate 24h Forecast
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         FORECAST SECTION  (hidden until forecast runs)
+    ═══════════════════════════════════════════════════════════════ -->
+    <section class="forecast-section" id="forecast" style="display:none">
+
+      <!-- Header row -->
+      <div class="results-header">
+        <h2 class="section-title">24-Hour AQI Forecast</h2>
+        <div class="model-badge-group">
+          <div class="model-badge" id="modelBadge">
+            <i class="ti ti-cpu" aria-hidden="true"></i>
+            <span id="modelBadgeText">GRU Neural Network</span>
+          </div>
+          <div class="confidence-badge" id="confidenceBadge">
+            <i class="ti ti-shield-check" aria-hidden="true"></i>
+            <span id="confidenceText">—% confidence</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Anomaly alert (shown only if anomaly detected) -->
+      <div class="anomaly-alert" id="anomalyAlert" style="display:none">
+        <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+        <div>
+          <strong>Pollution Spike Detected</strong>
+          <span id="anomalyDesc"></span>
+        </div>
+      </div>
+
+      <!-- Forecast summary cards -->
+      <div class="forecast-summary-grid">
+        <div class="forecast-card" id="fc6h">
+          <div class="fc-label">6h Forecast</div>
+          <div class="fc-aqi">—</div>
+          <div class="fc-cat">—</div>
+          <div class="fc-risk">Risk: —</div>
+        </div>
+        <div class="forecast-card" id="fc12h">
+          <div class="fc-label">12h Forecast</div>
+          <div class="fc-aqi">—</div>
+          <div class="fc-cat">—</div>
+          <div class="fc-risk">Risk: —</div>
+        </div>
+        <div class="forecast-card" id="fc24h">
+          <div class="fc-label">24h Forecast</div>
+          <div class="fc-aqi">—</div>
+          <div class="fc-cat">—</div>
+          <div class="fc-risk">Risk: —</div>
+        </div>
+        <div class="forecast-card peak-card" id="fcPeak">
+          <div class="fc-label">Peak AQI</div>
+          <div class="fc-aqi" id="peakAqiVal">—</div>
+          <div class="fc-cat" id="peakHourVal">at hour —</div>
+          <div class="fc-risk" id="peakCatVal">—</div>
+        </div>
+      </div>
+
+      <!-- 24h Forecast Line Chart -->
+      <div class="chart-card forecast-chart-card">
+        <div class="chart-header">
+          <span class="chart-title">AQI Forecast Curve — Next 24 Hours</span>
+          <span class="chart-sub">with 90% confidence interval</span>
+        </div>
+        <div style="position:relative;width:100%;height:300px;">
+          <canvas id="forecastChart" role="img" aria-label="24-hour AQI forecast line chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Risk Timeline -->
+      <div class="risk-timeline-card">
+        <div class="chart-header">
+          <span class="chart-title">Respiratory Risk Timeline</span>
+          <span class="chart-sub">Risk score per hour based on profile</span>
+        </div>
+        <div style="position:relative;width:100%;height:220px;">
+          <canvas id="riskTimelineChart" role="img" aria-label="Respiratory risk timeline"></canvas>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="recommendations" id="recommendations">
+        <div class="reco-header">
+          <i class="ti ti-clipboard-list" aria-hidden="true"></i>
+          Forecast-Based Health Recommendations
+        </div>
+        <div class="reco-list" id="recoList"></div>
+      </div>
+
+      <!-- Risk Gauge -->
+      <div class="gauge-container">
+        <canvas id="riskGauge" width="300" height="160" role="img" aria-label="Risk score gauge"></canvas>
+        <div class="gauge-label" id="gaugeLabel">Peak Risk Score: —</div>
+      </div>
+
+    </section>
+
+    <!-- ABOUT -->
+    <section class="about-section" id="about">
+      <div class="about-grid">
+        <div class="about-card">
+          <div class="about-icon"><i class="ti ti-brain" aria-hidden="true"></i></div>
+          <div class="about-title">GRU Temporal Neural Network</div>
+          <div class="about-desc">Stacked GRU with Monte Carlo dropout trained on 29,531 records from 26 Indian cities. Auto-regressive 24-step forecasting with uncertainty quantification.</div>
+        </div>
+        <div class="about-card">
+          <div class="about-icon"><i class="ti ti-satellite" aria-hidden="true"></i></div>
+          <div class="about-title">Real-Time Data</div>
+          <div class="about-desc">Live pollutant readings via WAQI API — PM2.5, PM10, NO₂, CO, SO₂, O₃ updated continuously from ground stations worldwide.</div>
+        </div>
+        <div class="about-card">
+          <div class="about-icon"><i class="ti ti-user-heart" aria-hidden="true"></i></div>
+          <div class="about-title">Personalised Risk</div>
+          <div class="about-desc">Health profiles (Normal, Asthma, Elderly, Athlete) apply physiological sensitivity multipliers to generate personalised 24h risk timelines.</div>
+        </div>
+        <div class="about-card">
+          <div class="about-icon"><i class="ti ti-alert-triangle" aria-hidden="true"></i></div>
+          <div class="about-title">Anomaly Detection</div>
+          <div class="about-desc">Statistical z-score analysis on the forecast window flags pollution spikes before they occur, enabling proactive health interventions.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo"><i class="ti ti-lungs" aria-hidden="true"></i> AIRA</div>
+      <div class="footer-text">AI Respiratory Forecasting Platform · GRU Temporal Neural Network · Built for preventive healthcare</div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="static/js/app.js"></script>
+</body>
+</html>
