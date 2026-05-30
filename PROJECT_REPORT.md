@@ -75,6 +75,25 @@ Outputs:
 - Chart.js
 
 ---
+## Screenshots
+
+### Homepage
+![Homepage](screenshots/homepage.png)
+
+### Live AQI Dashboard
+![Dashboard](screenshots/live-aqi-dashboard.png)
+
+### Health Profile Configuration
+![Profile](screenshots/health-profile.png)
+
+### 24-Hour AQI Forecast
+![Forecast](screenshots/forecast-results.png)
+
+### Risk Timeline & Recommendations
+![Risk Analysis](screenshots/risk-analysis.png)
+
+### Risk Gauge & System Features
+![Features](screenshots/about-features.png)
 
 ## Future Scope
 
@@ -88,4 +107,4 @@ Outputs:
 
 ## Author
 
-Arnav Kakkar
+Arnav Kakkar & Daksha Gulati
