@@ -262,8 +262,10 @@ http://localhost:8080
 ## Author
 
 Arnav Kakkar
+Final Year Engineering Student, Thapar Institute of Engineering & Technology
 
-Engineering Student, Thapar Institute of Engineering & Technology
+Daksha Gulati 
+Pre-final Year Engineering Student, Thapar Institute of Engineering & Technology
 
 ---
 
