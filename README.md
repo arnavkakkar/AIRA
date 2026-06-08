@@ -35,7 +35,7 @@ Health profiles supported:
 
 - Normal
 - Asthma
-- Elderly
+- Age
 - Athlete
 
 Risk estimation considers:
@@ -96,7 +96,7 @@ Dynamic recommendations such as:
 AIRA/
 ├── app/
 │   └── api.py
-│
+
 ├── frontend/
 │   ├── server.py
 │   ├── templates/
@@ -106,7 +106,7 @@ AIRA/
 │       │   └── style.css
 │       └── js/
 │           └── app.js
-│
+
 ├── models/
 │   ├── aqi_gru_model.h5
 │   ├── aqi_scaler.pkl
@@ -114,9 +114,22 @@ AIRA/
 │   ├── city_encoder.pkl
 │   ├── train_gru.py
 │   └── training_history.json
-│
-├── requirements.txt
+
+├── papers/
+|
+
+├── screenshots/
+│   ├── homepage.png
+│   ├── live-aqi-dashboard.png
+│   ├── health-profile.png
+│   ├── risk-analysis.png
+│   ├── forecast-results.png
+│   └── about-features.png
+
+├── PROJECT_REPORT.md
 ├── README.md
+├── requirements.txt
+├── LICENSE
 └── .gitignore
 ```
 
