@@ -96,7 +96,7 @@ Dynamic recommendations such as:
 AIRA/
 ├── app/
 │   └── api.py
-
+|
 ├── frontend/
 │   ├── server.py
 │   ├── templates/
@@ -106,7 +106,7 @@ AIRA/
 │       │   └── style.css
 │       └── js/
 │           └── app.js
-
+|
 ├── models/
 │   ├── aqi_gru_model.h5
 │   ├── aqi_scaler.pkl
@@ -114,10 +114,10 @@ AIRA/
 │   ├── city_encoder.pkl
 │   ├── train_gru.py
 │   └── training_history.json
-
+|
 ├── papers/
 |
-
+|
 ├── screenshots/
 │   ├── homepage.png
 │   ├── live-aqi-dashboard.png
@@ -125,7 +125,7 @@ AIRA/
 │   ├── risk-analysis.png
 │   ├── forecast-results.png
 │   └── about-features.png
-
+|
 ├── PROJECT_REPORT.md
 ├── README.md
 ├── requirements.txt
