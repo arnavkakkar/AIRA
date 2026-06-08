@@ -1,9 +1,9 @@
 flask
 flask-cors
+numpy==1.26.4
 pandas
 scikit-learn
 joblib
 requests
 gunicorn
 tensorflow==2.17.0
-numpy==1.26.4
