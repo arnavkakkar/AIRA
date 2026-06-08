@@ -398,6 +398,87 @@ input[type="range"]::-webkit-slider-thumb:hover { box-shadow:0 0 16px rgba(0,212
   padding: 1.5rem;
 }
 
+.age-control {
+    width: min(330px, 100%);
+    height: 90px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 20px;
+
+    border: 1px solid rgba(0,255,200,.5);
+    border-radius: 24px;
+
+    background: rgba(0,255,200,.05);
+}
+
+.age-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+
+.age-info {
+    color: var(--text-2);
+    font-size: 14px;
+    max-width: 240px;
+    line-height: 1.5;
+}
+
+.age-control button {
+    width: 52px;
+    height: 52px;
+
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.04);
+
+    color: var(--text-0);
+
+    font-size: 32px;
+    font-weight: 300;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+}
+
+.age-control button:hover {
+    background: rgba(0,212,170,.12);
+    border-color: rgba(0,212,170,.3);
+
+    color: var(--accent);
+
+    transform: translateY(-2px);
+}
+
+.age-control button:active {
+    transform: scale(0.95);
+}
+
+.age-display{
+    text-align:center;
+}
+
+.age-display span{
+    display:block;
+    font-size:31px;
+    font-weight:700;
+    color:white;
+    line-height: 1;
+}
+
+.age-display small{
+    color:#b8c1d1;
+    font-size:12px;
+    line-height: 1;
+    margin-top: -4px; 
+}
+
 @media (max-width: 768px) {
   .forecast-summary-grid {
     grid-template-columns: repeat(2,1fr);

@@ -145,14 +145,20 @@
           <div class="control-group">
             <label class="control-label">Age</label>
             <div class="age-input-wrapper">
-              <input
-                type="number"
-                id="ageInput"
-                min="1"
-                max="100"
-                value="21"
-                class="age-input"
-              />
+              <div class="age-control">
+                  <button id="ageMinus">−</button>
+
+                  <div class="age-display">
+                      <span id="ageValue">21</span>
+                      <small>years</small>
+                  </div>
+
+                  <button id="agePlus">+</button>
+              </div>
+
+              <p class="age-info">
+                  Your age helps us personalise your air quality forecast.
+              </p>
             </div>
           </div>
           <div class="control-group">

@@ -568,3 +568,4 @@ def home():
         app.template_folder,
         "index.html"
     )
+

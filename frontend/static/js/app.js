@@ -1,8 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // AIRA — app.js  (GRU Forecast Edition)
 // ─────────────────────────────────────────────────────────────────────────────
-
-const API_BASE = "http://localhost:5001";
+const API_BASE = window.location.origin;
 
 let state = {
   profile: "normal",
@@ -15,6 +14,10 @@ let state = {
   forecastChart: null,
   riskChart: null,
 };
+
+function updateAgeDisplay() {
+  document.getElementById("ageValue").textContent = state.age;
+}
 
 // ─── AQI metadata ────────────────────────────────────────────────────────────
 const AQI_META = {
@@ -247,10 +250,7 @@ async function runForecast() {
   btn.innerHTML = '<i class="ti ti-loader" aria-hidden="true"></i> Forecasting…';
 
   try {
-
-    // Read age from input
-    state.age = parseInt(document.getElementById("ageInput").value) || 21;
-
+    
     const payload = {
       pm25:           state.pollutants["PM2.5"] || 0,
       pm10:           state.pollutants["PM10"]  || 0,
@@ -586,3 +586,19 @@ function scaleDefaults() {
     ticks: { color: "#6a7d90", font: { family: "'DM Sans'", size: 11 } },
   };
 }
+
+document.getElementById("agePlus")?.addEventListener("click", () => {
+  if (state.age < 100) {
+    state.age++;
+    updateAgeDisplay();
+  }
+});
+
+document.getElementById("ageMinus")?.addEventListener("click", () => {
+  if (state.age > 1) {
+    state.age--;
+    updateAgeDisplay();
+  }
+});
+
+updateAgeDisplay();
