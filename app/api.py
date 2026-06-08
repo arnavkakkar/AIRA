@@ -3,9 +3,9 @@ AIRA - Flask API
 ================
 Endpoints:
   GET  /api/fetch-aqi          – fetch live AQI from WAQI
-  POST /api/predict             – legacy RF predict (kept for compatibility)
-  POST /api/forecast            – NEW: GRU 24-step AQI forecast + risk timeline
-  GET  /api/health              – health check
+  POST /api/predict            – legacy RF predict (kept for compatibility)
+  POST /api/forecast           – NEW: GRU 24-step AQI forecast + risk timeline
+  GET  /api/health             – health check
 """
 
 import os
@@ -16,6 +16,7 @@ import joblib
 import requests
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask import send_from_directory
 
 # ── TensorFlow quiet import ───────────────────────────────────────────────────
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -64,7 +65,11 @@ else:
 print("[AIRA] API ready")
 
 # ─────────────────────────────────────────────────────────────────────────────
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder="../frontend/static",
+    template_folder="../frontend/templates"
+)
 CORS(app)
 
 WAQI_TOKEN = "4eae18b5e0db7190c0d789bccd76651803202734"
@@ -258,7 +263,7 @@ def gru_forecast_24h(current_features,city_name: str) -> dict:
     window_scaled = feat_scaler.transform(window)   # (7, 6)
 
     FORECAST_STEPS = 24
-    MONTE_CARLO    = 20       # MC dropout passes for uncertainty
+    MONTE_CARLO    = 5       # MC dropout passes for uncertainty
 
     all_runs = []
 
@@ -555,3 +560,11 @@ def health():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
+
+
+@app.route("/")
+def home():
+    return send_from_directory(
+        app.template_folder,
+        "index.html"
+    )
